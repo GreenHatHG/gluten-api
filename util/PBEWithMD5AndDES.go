@@ -60,13 +60,3 @@ func Decrypt(password string, obtenationIterations int, cipherText string, salt 
 
 	return decryptedString, nil
 }
-
-//func main() {
-//	salt := []byte("")
-//	password := ""
-//	iterations :=
-//	originalText := ""
-//
-//	res, _ := Encrypt(password, iterations, originalText, salt)
-//	fmt.Println(res)
-//}

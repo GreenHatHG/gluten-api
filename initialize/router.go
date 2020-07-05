@@ -15,6 +15,7 @@ func Routers() *gin.Engine {
 	// 方便统一添加路由组前缀
 	ApiGroup := Router.Group("")
 	api.InitGlutenInfoRouter(ApiGroup)
+	api.InitUserInfoRouter(ApiGroup)
 	fmt.Println("router register success")
 	return Router
 }

@@ -12,12 +12,18 @@ import (
 var (
 	DB    *gorm.DB
 	MYSQL *MySQL
+	MINI  *Mini
 )
 
 type MySQL struct {
 	Username string
 	Password string
 	Host     string
+}
+
+type Mini struct {
+	AppId  string
+	Secret string
 }
 
 func init() {
@@ -29,12 +35,21 @@ func init() {
 	MYSQL = new(MySQL)
 	err = cfg.Section("MySQL").MapTo(MYSQL)
 
-	salt, pwd, iter := getParams()
+	MINI = new(Mini)
+	err = cfg.Section("Mini").MapTo(MINI)
+
+	salt, pwd, iter := GetParams()
 	MYSQL.Host, _ = util.Decrypt(pwd, iter, MYSQL.Host, []byte(salt))
 	MYSQL.Password, _ = util.Decrypt(pwd, iter, MYSQL.Password, []byte(salt))
+	MINI.Secret, _ = util.Decrypt(pwd, iter, MINI.Secret, []byte(salt))
+	MINI.AppId, _ = util.Decrypt(pwd, iter, MINI.AppId, []byte(salt))
+
+	//s := ""
+	//data, _ := util.Encrypt(pwd, iter, s, []byte(salt))
+	//fmt.Println("加密后：", data)
 }
 
-func getParams() (string, string, int) {
+func GetParams() (string, string, int) {
 	salt := flag.String("salt", "", "")
 	password := flag.String("pwd", "", "")
 	iter := flag.Int("iter", 0, "")
