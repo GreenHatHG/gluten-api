@@ -10,7 +10,6 @@ import (
 func init() {
 	fmt.Println("init mysql")
 	initialize.Mysql()
-
 }
 
 func main() {

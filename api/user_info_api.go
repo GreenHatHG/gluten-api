@@ -18,20 +18,18 @@ func AddUserInfo(c *gin.Context) {
 	_ = c.ShouldBindJSON(&userInfo)
 	fmt.Printf("%+v\n", userInfo)
 
-	res, _ := weapp.Login(global.MINI.AppId, global.MINI.Secret, userInfo.Code)
-	var query model.UserInfo
-	notFound := global.DB.Where(model.UserInfo{OpenId: res.OpenID}).First(&query).RecordNotFound()
-	if notFound {
-		userInfo.OpenId = res.OpenID
-		err := model.AddUserInfo(userInfo)
-		if err != nil {
-			fmt.Println(err)
-			global.FailWithMessage(fmt.Sprintf("插入数据失败，%v", err), c)
-		} else {
-			data, _ := model.GetUserByOpenId(userInfo.OpenId)
-			global.OkWithData(data, c)
-		}
+	res, err := weapp.Login(global.MINI.AppId, global.MINI.Secret, userInfo.Code)
+	if err == nil {
+		var query model.UserInfo
+		global.DB.Where(model.UserInfo{OpenId: res.OpenID}).Assign(userInfo).FirstOrCreate(&query)
+		global.OkWithData(gin.H{
+			"id":        query.ID,
+			"avatarUrl": query.AvatarUrl,
+			"nickName":  query.NickName,
+		}, c)
 	} else {
-		global.OkWithData(query, c)
+		fmt.Println(err)
+		global.FailWithMessage(err.Error(), c)
 	}
+
 }
