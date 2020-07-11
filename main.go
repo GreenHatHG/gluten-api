@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	fmt.Println("init mysql")
+	fmt.Println("init MySQL")
 	initialize.Mysql()
 }
 
@@ -36,7 +36,9 @@ func main() {
 	//})
 	//_ = r.Run(":8080")
 	r := initialize.Routers()
-	_ = r.Run(":8090")
+	if err := r.Run(":8090"); err != nil {
+		fmt.Println(err)
+	}
 	// 程序结束前关闭数据库链接
 	defer global.DB.Close()
 }

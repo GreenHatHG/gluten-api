@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	DB    *gorm.DB
-	MYSQL *MySQL
-	MINI  *Mini
+	DB     *gorm.DB
+	MYSQL  *MySQL
+	GITHUB *Github
 )
 
 type MySQL struct {
@@ -21,9 +21,9 @@ type MySQL struct {
 	Host     string
 }
 
-type Mini struct {
-	AppId  string
-	Secret string
+type Github struct {
+	ClientID     string
+	ClientSecret string
 }
 
 func init() {
@@ -35,14 +35,14 @@ func init() {
 	MYSQL = new(MySQL)
 	err = cfg.Section("MySQL").MapTo(MYSQL)
 
-	MINI = new(Mini)
-	err = cfg.Section("Mini").MapTo(MINI)
+	GITHUB = new(Github)
+	err = cfg.Section("Github").MapTo(GITHUB)
 
 	salt, pwd, iter := GetParams()
 	MYSQL.Host, _ = util.Decrypt(pwd, iter, MYSQL.Host, []byte(salt))
 	MYSQL.Password, _ = util.Decrypt(pwd, iter, MYSQL.Password, []byte(salt))
-	MINI.Secret, _ = util.Decrypt(pwd, iter, MINI.Secret, []byte(salt))
-	MINI.AppId, _ = util.Decrypt(pwd, iter, MINI.AppId, []byte(salt))
+	GITHUB.ClientID, _ = util.Decrypt(pwd, iter, GITHUB.ClientID, []byte(salt))
+	GITHUB.ClientSecret, _ = util.Decrypt(pwd, iter, GITHUB.ClientSecret, []byte(salt))
 
 	//s := ""
 	//data, _ := util.Encrypt(pwd, iter, s, []byte(salt))

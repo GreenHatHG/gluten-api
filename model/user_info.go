@@ -7,24 +7,22 @@ import (
 
 type UserInfo struct {
 	gorm.Model
-	AvatarUrl     string
-	City          string
-	Country       string
-	NickName      string
-	Province      string
-	EncryptedData string
-	Iv            string
-	OpenId        string
-	Code          string `gorm:"-"`
+	AvatarUrl string
+	Username  string
+	Email     string
+	OauthId   int //oauth2登录后返回用户信息中的id字段
+	Location  string
 }
 
-func AddUserInfo(info UserInfo) (err error) {
-	err = global.DB.Create(&info).Error
-	return
+func (u UserInfo) CreateOrUpdateUserInfo() UserInfo {
+	var query UserInfo
+	global.DB.Where(UserInfo{OauthId: u.OauthId}).Assign(u).FirstOrCreate(&query)
+	return query
 }
 
-func GetUserByOpenId(openId string) (user *UserInfo, err error) {
-	user = new(UserInfo)
-	err = global.DB.Where(UserInfo{OpenId: openId}).First(user).Error
-	return
-}
+//
+//func GetUserByOpenId(openId string) (user *UserInfo, err error) {
+//	user = new(UserInfo)
+//	err = global.DB.Where(UserInfo{OpenId: openId}).First(user).Error
+//	return
+//}
