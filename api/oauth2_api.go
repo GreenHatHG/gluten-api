@@ -22,16 +22,16 @@ func GithubOauth2(c *gin.Context) {
 		global.GITHUB.ClientID, global.GITHUB.ClientSecret, code)
 	content, err := util.Post("https://github.com/login/oauth/access_token", body)
 	if err != nil {
-		global.Logger.Error(err)
-		global.FailWithMessage("请求github token失败", c)
+		util.Logger.Error(err)
+		util.FailWithMessage("请求github token失败", c)
 	}
 	token := gjson.Get(string(content), "access_token").String()
 
 	//根据token获取用户信息
 	content, err = util.Get("https://api.github.com/user", token)
 	if err != nil {
-		global.Logger.Error(err)
-		global.FailWithMessage("获取用户信息失败", c)
+		util.Logger.Error(err)
+		util.FailWithMessage("获取用户信息失败", c)
 	}
 	data := gjson.Parse(string(content)).Map()
 
@@ -39,9 +39,15 @@ func GithubOauth2(c *gin.Context) {
 	info := model.UserInfo{AvatarUrl: data["avatar_url"].Str, Username: data["login"].Str, Email: data["email"].Str,
 		Location: data["location"].Str, OauthId: int(data["id"].Int())}
 	userInfo := model.UserInfo.CreateOrUpdateUserInfo(info)
-	global.OkWithData(gin.H{
-		"avatarUrl": userInfo.AvatarUrl,
-		"username":  userInfo.Username,
-		"id":        userInfo.ID,
-	}, c)
+	if token, err := util.GetJWTToken(int(userInfo.ID)); err == nil {
+		util.OkWithData(gin.H{
+			"avatarUrl": userInfo.AvatarUrl,
+			"username":  userInfo.Username,
+			"id":        userInfo.ID,
+			"token":     token,
+		}, c)
+	} else {
+		util.Logger.Error(err)
+		util.FailWithMessage("token获取失败", c)
+	}
 }

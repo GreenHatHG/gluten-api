@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gluten/api"
-	"gluten/global"
+	"gluten/middleware"
 	"net/http"
 )
 
@@ -12,14 +12,16 @@ import (
 func Routers() *gin.Engine {
 	fmt.Println("router register begin")
 	var Router = gin.Default()
-	Router.Use(global.GinLoggerToFile())
+	Router.Use(middleware.GinLoggerToFile())
 	Router.Use(Cors())
+	Router.Use(middleware.Auth())
 	// 方便统一添加路由组前缀
 	ApiGroup := Router.Group("")
 	api.InitGlutenInfoRouter(ApiGroup)
 	//api.InitUserInfoRouter(ApiGroup)
 	api.InitConfigRouter(ApiGroup)
 	api.InitOauth2Router(ApiGroup)
+	api.InitUserCategoryRouter(ApiGroup)
 	fmt.Println("router register success")
 	return Router
 }

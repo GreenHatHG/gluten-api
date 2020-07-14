@@ -1,11 +1,10 @@
-package global
+package util
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-//todo 保存所有请求日志
 type Response struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data"`
@@ -51,4 +50,8 @@ func FailWithMessage(message string, c *gin.Context) {
 
 func FailWithDetailed(code int, data interface{}, message string, c *gin.Context) {
 	Result(http.StatusBadRequest, code, data, message, c)
+}
+
+func StatusUnauthorized(c *gin.Context) {
+	Result(http.StatusUnauthorized, ERROR, map[string]interface{}{}, "token验证不通过", c)
 }

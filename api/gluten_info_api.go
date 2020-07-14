@@ -3,21 +3,22 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gluten/global"
+	"gluten/middleware"
 	"gluten/model"
+	"gluten/util"
 )
 
 func InitGlutenInfoRouter(Router *gin.RouterGroup) {
 	GlutenInfoGroup := Router.Group("gluten_info")
-	GlutenInfoGroup.GET("/list", SelectAllGlutenInfo)
+	GlutenInfoGroup.GET("/list", SelectAllGlutenInfo).Use(middleware.Auth())
 }
 
 func SelectAllGlutenInfo(c *gin.Context) {
 	err, data := model.SelectAllGlutenInfo()
 	if err != nil {
 		fmt.Println(err)
-		global.FailWithMessage(fmt.Sprintf("获取数据失败，%v", err), c)
+		util.FailWithMessage(fmt.Sprintf("获取数据失败，%v", err), c)
 	} else {
-		global.OkWithData(data, c)
+		util.OkWithData(data, c)
 	}
 }

@@ -1,4 +1,4 @@
-package util
+package global
 
 //https://github.com/pineda89/PBEWithMD5AndDES/blob/master/PBEWithMD5AndDES.go
 

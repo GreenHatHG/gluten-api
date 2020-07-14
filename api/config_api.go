@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"gluten/global"
+	"gluten/util"
 )
 
 func InitConfigRouter(Router *gin.RouterGroup) {
@@ -11,7 +12,7 @@ func InitConfigRouter(Router *gin.RouterGroup) {
 }
 
 func GetGithubConfig(c *gin.Context) {
-	global.OkWithData(gin.H{
+	util.OkWithData(gin.H{
 		"clientId": global.GITHUB.ClientID,
 	}, c)
 }

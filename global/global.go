@@ -4,15 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"gluten/util"
 	"gopkg.in/ini.v1"
 	"os"
 )
 
 var (
-	DB     *gorm.DB
-	MYSQL  *MySQL
-	GITHUB *Github
+	DB        *gorm.DB
+	MYSQL     *MySQL
+	GITHUB    *Github
+	JwtConfig *JWT
 )
 
 type MySQL struct {
@@ -26,23 +26,33 @@ type Github struct {
 	ClientSecret string
 }
 
+type JWT struct {
+	Secret string
+	Exp    int
+}
+
 func init() {
 	cfg, err := ini.Load("config.ini")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-2)
 	}
+
 	MYSQL = new(MySQL)
-	err = cfg.Section("MySQL").MapTo(MYSQL)
+	_ = cfg.Section("MySQL").MapTo(MYSQL)
 
 	GITHUB = new(Github)
-	err = cfg.Section("Github").MapTo(GITHUB)
+	_ = cfg.Section("Github").MapTo(GITHUB)
+
+	JwtConfig = new(JWT)
+	_ = cfg.Section("JWT").MapTo(GITHUB)
 
 	salt, pwd, iter := GetParams()
-	MYSQL.Host, _ = util.Decrypt(pwd, iter, MYSQL.Host, []byte(salt))
-	MYSQL.Password, _ = util.Decrypt(pwd, iter, MYSQL.Password, []byte(salt))
-	GITHUB.ClientID, _ = util.Decrypt(pwd, iter, GITHUB.ClientID, []byte(salt))
-	GITHUB.ClientSecret, _ = util.Decrypt(pwd, iter, GITHUB.ClientSecret, []byte(salt))
+	MYSQL.Host, _ = Decrypt(pwd, iter, MYSQL.Host, []byte(salt))
+	MYSQL.Password, _ = Decrypt(pwd, iter, MYSQL.Password, []byte(salt))
+	GITHUB.ClientID, _ = Decrypt(pwd, iter, GITHUB.ClientID, []byte(salt))
+	GITHUB.ClientSecret, _ = Decrypt(pwd, iter, GITHUB.ClientSecret, []byte(salt))
+	JwtConfig.Secret, _ = Decrypt(pwd, iter, JwtConfig.Secret, []byte(salt))
 
 	//s := ""
 	//data, _ := util.Encrypt(pwd, iter, s, []byte(salt))
