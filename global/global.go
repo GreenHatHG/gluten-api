@@ -45,7 +45,7 @@ func init() {
 	_ = cfg.Section("Github").MapTo(GITHUB)
 
 	JwtConfig = new(JWT)
-	_ = cfg.Section("JWT").MapTo(GITHUB)
+	_ = cfg.Section("JWT").MapTo(JwtConfig)
 
 	salt, pwd, iter := GetParams()
 	MYSQL.Host, _ = Decrypt(pwd, iter, MYSQL.Host, []byte(salt))

@@ -14,13 +14,12 @@ func Routers() *gin.Engine {
 	var Router = gin.Default()
 	Router.Use(middleware.GinLoggerToFile())
 	Router.Use(Cors())
-	Router.Use(middleware.Auth())
 	// 方便统一添加路由组前缀
 	ApiGroup := Router.Group("")
 	api.InitGlutenInfoRouter(ApiGroup)
 	//api.InitUserInfoRouter(ApiGroup)
 	api.InitConfigRouter(ApiGroup)
-	api.InitOauth2Router(ApiGroup)
+	api.InitOauthRouter(ApiGroup)
 	api.InitUserCategoryRouter(ApiGroup)
 	fmt.Println("router register success")
 	return Router

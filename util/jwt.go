@@ -3,13 +3,14 @@ package util
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"gluten/global"
 	"time"
 )
 
 func GetJWTToken(id int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  string(id),
+		"id":  id,
 		"exp": time.Now().Add(time.Hour * time.Duration(global.JwtConfig.Exp)).Unix(),
 	})
 	if tokenString, err := token.SignedString([]byte(global.JwtConfig.Secret)); err != nil {
@@ -35,4 +36,9 @@ func ParseToken(tokenString string) (uint, bool) {
 	} else {
 		return 0, false
 	}
+}
+
+func GetJwtId(c *gin.Context) uint {
+	id, _ := c.Get("id")
+	return id.(uint)
 }

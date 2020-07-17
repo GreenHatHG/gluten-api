@@ -6,8 +6,8 @@ import (
 )
 
 func InitUserInfoRouter(Router *gin.RouterGroup) {
-	GlutenInfoGroup := Router.Group("user_info")
-	GlutenInfoGroup.POST("/action/login", AddUserInfo)
+	UserInfoGroup := Router.Group("user_info")
+	UserInfoGroup.POST("/action/login", AddUserInfo)
 }
 
 func AddUserInfo(c *gin.Context) {

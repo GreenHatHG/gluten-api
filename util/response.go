@@ -55,3 +55,11 @@ func FailWithDetailed(code int, data interface{}, message string, c *gin.Context
 func StatusUnauthorized(c *gin.Context) {
 	Result(http.StatusUnauthorized, ERROR, map[string]interface{}{}, "token验证不通过", c)
 }
+
+func IncorrectParameters(err string, c *gin.Context) {
+	Result(http.StatusBadRequest, 12121, map[string]interface{}{}, "参数错误："+err, c)
+}
+
+func DBUpdateFailed(err error, c *gin.Context) {
+	Result(http.StatusBadRequest, 13334, map[string]interface{}{}, "数据库更新失败："+err.Error(), c)
+}

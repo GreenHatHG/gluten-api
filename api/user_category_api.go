@@ -2,33 +2,44 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"gluten/middleware"
 	"gluten/model"
+	"gluten/service"
 	"gluten/util"
 	"strings"
 )
 
 func InitUserCategoryRouter(Router *gin.RouterGroup) {
-	GlutenInfoGroup := Router.Group("user_category")
-	GlutenInfoGroup.PUT("", UpdateUserCategory)
-	GlutenInfoGroup.GET("/actions/get", SelectUserCategoryById)
+	CategoryGroup := Router.Group("user_category").Use(middleware.Auth())
+	CategoryGroup.PUT("", UpdateUserCategory)
+	CategoryGroup.GET("/actions/get", SelectUserCategoryById)
 }
 
 func UpdateUserCategory(c *gin.Context) {
 	var userCategory model.UserCategory
 	if err := c.ShouldBindJSON(&userCategory); err != nil {
-		util.FailWithDetailed(12121, err.Error(), "参数错误", c)
+		util.IncorrectParameters(err.Error(), c)
 	}
-	query := userCategory.CreateOrUpdateUserCategory()
-	util.OkWithData(query, c)
+	if query, err := service.CreateOrUpdateUserCategory(userCategory); err != nil {
+		util.DBUpdateFailed(err, c)
+	} else {
+		util.OkWithData(query, c)
+	}
 }
 
 func SelectUserCategoryById(c *gin.Context) {
-	id, _ := c.Get("id")
-	category := model.SelectUserCategoryById(id.(uint))
+	query, err := service.SelectUserCategoryById(util.GetJwtId(c))
+	var company []string
+	var category []string
+	var post []string
+	if err == nil {
+		company = strings.Split(query.Company, ",")
+		category = strings.Split(query.Category, ",")
+		post = strings.Split(query.Post, ",")
+	}
 	util.OkWithData(gin.H{
-		"id":       category.ID,
-		"company":  strings.Split(category.Company, "/"),
-		"category": strings.Split(category.Category, "/"),
-		"post":     strings.Split(category.Post, "/"),
+		"company":  company,
+		"category": category,
+		"post":     post,
 	}, c)
 }

@@ -9,9 +9,9 @@ import (
 	"gluten/util"
 )
 
-func InitOauth2Router(Router *gin.RouterGroup) {
-	GlutenInfoGroup := Router.Group("oauth2")
-	GlutenInfoGroup.POST("/github", GithubOauth2)
+func InitOauthRouter(Router *gin.RouterGroup) {
+	OauthGroup := Router.Group("oauth2")
+	OauthGroup.POST("/github", GithubOauth2)
 }
 
 func GithubOauth2(c *gin.Context) {

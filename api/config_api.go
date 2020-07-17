@@ -7,8 +7,8 @@ import (
 )
 
 func InitConfigRouter(Router *gin.RouterGroup) {
-	GlutenInfoGroup := Router.Group("config")
-	GlutenInfoGroup.GET("/github", GetGithubConfig)
+	ConfigGroup := Router.Group("config")
+	ConfigGroup.GET("/github", GetGithubConfig)
 }
 
 func GetGithubConfig(c *gin.Context) {
