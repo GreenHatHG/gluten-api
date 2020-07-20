@@ -34,7 +34,13 @@ func SelectAllGlutenInfoById(userId string, currentPage int64, pageSize int64, s
 	var lists []model.GlutenInfo
 	for _, raw := range paginatedData.Data {
 		var gluten *model.GlutenInfo
-		if marshallErr := bson.Unmarshal(raw, &gluten); marshallErr == nil {
+		marshallErr := bson.Unmarshal(raw, &gluten)
+		var hexId struct {
+			ID primitive.ObjectID `bson:"_id"`
+		}
+		idErr := bson.Unmarshal(raw, &hexId)
+		if marshallErr == nil && idErr == nil {
+			gluten.ID = hexId.ID.Hex()
 			lists = append(lists, *gluten)
 		}
 	}
