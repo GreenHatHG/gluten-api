@@ -1,23 +1,19 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
-	"gluten/global"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type UserInfo struct {
-	gorm.Model
-	AvatarUrl string
-	Username  string
-	Email     string
-	OauthId   int //oauth2登录后返回用户信息中的id字段
-	Location  string
-}
-
-func (u UserInfo) CreateOrUpdateUserInfo() UserInfo {
-	var query UserInfo
-	global.DB.Where(UserInfo{OauthId: u.OauthId}).Assign(u).FirstOrCreate(&query)
-	return query
+	ID        primitive.ObjectID `bson:"_id, omitempty"`
+	UpdatedAt time.Time          `bson:"update_at"`
+	DeletedAt time.Time          `bson:"deleted_at"`
+	AvatarUrl string             `bson:"avatar_url"`
+	Username  string             `bson:"username"`
+	Email     string             `bson:"email"`
+	OauthId   int                `bson:"oauth_id"` //oauth2登录后返回用户信息中的id字段
+	Location  string             `bson:"location"`
 }
 
 //

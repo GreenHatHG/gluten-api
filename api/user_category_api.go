@@ -6,7 +6,6 @@ import (
 	"gluten/model"
 	"gluten/service"
 	"gluten/util"
-	"strings"
 )
 
 func InitUserCategoryRouter(Router *gin.RouterGroup) {
@@ -20,10 +19,10 @@ func UpdateUserCategory(c *gin.Context) {
 	if err := c.ShouldBindJSON(&userCategory); err != nil {
 		util.IncorrectParameters(err.Error(), c)
 	}
-	if query, err := service.CreateOrUpdateUserCategory(userCategory); err != nil {
+	if err := service.CreateOrUpdateUserCategory(userCategory); err != nil {
 		util.DBUpdateFailed(err, c)
 	} else {
-		util.OkWithData(query, c)
+		util.Ok(c)
 	}
 }
 
@@ -33,9 +32,9 @@ func SelectUserCategoryById(c *gin.Context) {
 	var category []string
 	var post []string
 	if err == nil {
-		company = strings.Split(query.Company, ",")
-		category = strings.Split(query.Category, ",")
-		post = strings.Split(query.Post, ",")
+		company = query.Company
+		category = query.Category
+		post = query.Post
 	}
 	util.OkWithData(gin.H{
 		"company":  company,

@@ -5,11 +5,16 @@ import (
 	_ "github.com/gin-gonic/gin"
 	"gluten/global"
 	"gluten/initialize"
+	"time"
 )
 
 func init() {
-	fmt.Println("init MySQL")
 	initialize.Mysql()
+	fmt.Println("init MySQL success")
+	initialize.MongoDB()
+	fmt.Println("init MongoDB success")
+
+	time.Local, _ = time.LoadLocation("Asia/Chongqing")
 }
 
 func main() {

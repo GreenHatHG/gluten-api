@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GetJWTToken(id int) (string, error) {
+func GetJWTToken(id string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  id,
 		"exp": time.Now().Add(time.Hour * time.Duration(global.JwtConfig.Exp)).Unix(),
@@ -20,7 +20,7 @@ func GetJWTToken(id int) (string, error) {
 	}
 }
 
-func ParseToken(tokenString string) (uint, bool) {
+func ParseToken(tokenString string) (string, bool) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -29,16 +29,16 @@ func ParseToken(tokenString string) (uint, bool) {
 	})
 	if err != nil {
 		Logger.Error(err)
-		return 0, false
+		return "", false
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return uint(claims["id"].(float64)), true
+		return claims["id"].(string), true
 	} else {
-		return 0, false
+		return "", false
 	}
 }
 
-func GetJwtId(c *gin.Context) uint {
+func GetJwtId(c *gin.Context) string {
 	id, _ := c.Get("id")
-	return id.(uint)
+	return id.(string)
 }

@@ -4,18 +4,21 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/ini.v1"
 	"os"
 )
 
 var (
 	DB        *gorm.DB
-	MYSQL     *MySQL
+	MongoDB   *mongo.Database
+	MYSQL     *DataBase
+	MONGO     *DataBase
 	GITHUB    *Github
 	JwtConfig *JWT
 )
 
-type MySQL struct {
+type DataBase struct {
 	Username string
 	Password string
 	Host     string
@@ -38,8 +41,10 @@ func init() {
 		os.Exit(-2)
 	}
 
-	MYSQL = new(MySQL)
+	MYSQL = new(DataBase)
 	_ = cfg.Section("MySQL").MapTo(MYSQL)
+	MONGO = new(DataBase)
+	_ = cfg.Section("Mongo").MapTo(MONGO)
 
 	GITHUB = new(Github)
 	_ = cfg.Section("Github").MapTo(GITHUB)
@@ -50,12 +55,14 @@ func init() {
 	salt, pwd, iter := GetParams()
 	MYSQL.Host, _ = Decrypt(pwd, iter, MYSQL.Host, []byte(salt))
 	MYSQL.Password, _ = Decrypt(pwd, iter, MYSQL.Password, []byte(salt))
+	MONGO.Host, _ = Decrypt(pwd, iter, MONGO.Host, []byte(salt))
+	MONGO.Password, _ = Decrypt(pwd, iter, MONGO.Password, []byte(salt))
 	GITHUB.ClientID, _ = Decrypt(pwd, iter, GITHUB.ClientID, []byte(salt))
 	GITHUB.ClientSecret, _ = Decrypt(pwd, iter, GITHUB.ClientSecret, []byte(salt))
 	JwtConfig.Secret, _ = Decrypt(pwd, iter, JwtConfig.Secret, []byte(salt))
 
 	//s := ""
-	//data, _ := util.Encrypt(pwd, iter, s, []byte(salt))
+	//data, _ := Encrypt(pwd, iter, s, []byte(salt))
 	//fmt.Println("加密后：", data)
 }
 

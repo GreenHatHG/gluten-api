@@ -6,6 +6,7 @@ import (
 	"github.com/tidwall/gjson"
 	"gluten/global"
 	"gluten/model"
+	"gluten/service"
 	"gluten/util"
 )
 
@@ -17,6 +18,10 @@ func InitOauthRouter(Router *gin.RouterGroup) {
 func GithubOauth2(c *gin.Context) {
 	code := c.Query("code")
 
+	if code == "" {
+		util.FailWithMessage("code为空", c)
+		return
+	}
 	//根据code获取token
 	body := fmt.Sprintf(`{"client_id":"%s","client_secret":"%s","code":"%s"}`,
 		global.GITHUB.ClientID, global.GITHUB.ClientSecret, code)
@@ -24,6 +29,7 @@ func GithubOauth2(c *gin.Context) {
 	if err != nil {
 		util.Logger.Error(err)
 		util.FailWithMessage("请求github token失败", c)
+		return
 	}
 	token := gjson.Get(string(content), "access_token").String()
 
@@ -38,12 +44,15 @@ func GithubOauth2(c *gin.Context) {
 	//保存到数据库
 	info := model.UserInfo{AvatarUrl: data["avatar_url"].Str, Username: data["login"].Str, Email: data["email"].Str,
 		Location: data["location"].Str, OauthId: int(data["id"].Int())}
-	userInfo := model.UserInfo.CreateOrUpdateUserInfo(info)
-	if token, err := util.GetJWTToken(int(userInfo.ID)); err == nil {
+	info, err = service.CreateOrUpdateUserInfo(info)
+	if err != nil {
+		util.DBUpdateFailed(err, c)
+		return
+	}
+	if token, err := util.GetJWTToken(info.ID.Hex()); err == nil {
 		util.OkWithData(gin.H{
-			"avatarUrl": userInfo.AvatarUrl,
-			"username":  userInfo.Username,
-			"id":        userInfo.ID,
+			"avatarUrl": info.AvatarUrl,
+			"username":  info.Username,
 			"token":     token,
 		}, c)
 	} else {
