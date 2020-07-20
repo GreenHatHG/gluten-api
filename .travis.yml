@@ -22,6 +22,7 @@ script:
   - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'git clone https://github.com/GreenHatHG/gluten-api.git /root/gluten/gluten-api'
   - sshpass -p ${gluten_pwd} scp -o StrictHostKeyChecking=no ./gluten root@${gluten_ip}:/root/gluten/gluten-api
   - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'systemctl restart gluten'
+  - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'systemctl restart caddy'
 
 branches:
   only:
