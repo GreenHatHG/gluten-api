@@ -18,10 +18,11 @@ install:
 
 script:
   - go build
-  - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'cd gluten && rm -rf gluten-api'
-  - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'git clone https://github.com/GreenHatHG/gluten-api.git'
-  - sshpass -p ${gluten_pwd} scp scp ./gluten root@${gluten_ip}:/root/gluten/gluten-api
-  - sshpass -p ${gluten_pwd} ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'systemctl restart gluten'
+  - export SSHPASS = ${gluten_pwd}
+  - sshpass -e ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'cd gluten && rm -rf gluten-api'
+  - sshpass -e ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'git clone https://github.com/GreenHatHG/gluten-api.git'
+  - sshpass -e scp scp -o StrictHostKeyChecking=no ./gluten root@${gluten_ip}:/root/gluten/gluten-api
+  - sshpass -e ssh -o StrictHostKeyChecking=no root@${gluten_ip}  'systemctl restart gluten'
 
 branches:
   only:
