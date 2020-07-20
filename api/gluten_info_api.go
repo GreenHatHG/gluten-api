@@ -16,7 +16,7 @@ import (
 func InitGlutenInfoRouter(Router *gin.RouterGroup) {
 	GlutenInfoGroup := Router.Group("gluten_info").Use(middleware.Auth())
 	GlutenInfoGroup.POST("/actions/add", AddGlutenInfo)
-	GlutenInfoGroup.GET("", SelectAllGlutenInfoById)
+	GlutenInfoGroup.GET("", SelectAllGlutenInfoByIdOrCategory)
 	GlutenInfoGroup.GET("/count", CountGlutenInfo)
 	GlutenInfoGroup.PUT("/title", UpdateGlutenTitle)
 	GlutenInfoGroup.PUT("/value", UpdateGlutenValue)
@@ -24,10 +24,11 @@ func InitGlutenInfoRouter(Router *gin.RouterGroup) {
 	GlutenInfoGroup.DELETE("/id", DeleteGlutenById)
 }
 
-func SelectAllGlutenInfoById(c *gin.Context) {
+func SelectAllGlutenInfoByIdOrCategory(c *gin.Context) {
 	currentPage := c.Query("current_page")
 	pageSize := c.Query("page_size")
 	sort := c.Query("sort")
+	category := c.Query("category")
 
 	pageSizeInt, pageSizeErr := strconv.ParseInt(pageSize, 10, 64)
 	if pageSizeErr != nil {
@@ -39,8 +40,14 @@ func SelectAllGlutenInfoById(c *gin.Context) {
 		util.IncorrectParameters(currentPageErr.Error(), c)
 		return
 	}
-
-	if err, data := service.SelectAllGlutenInfoById(util.GetJwtId(c), currentPageInt, pageSizeInt, sort); err != nil {
+	var data []model.GlutenInfo
+	var err error
+	if category != "" {
+		err, data = service.SelectGlutenInfoByCategory(util.GetJwtId(c), currentPageInt, pageSizeInt, sort, category)
+	} else {
+		err, data = service.SelectAllGlutenInfoById(util.GetJwtId(c), currentPageInt, pageSizeInt, sort)
+	}
+	if err != nil {
 		util.Logger.Error(err)
 		util.FailWithMessage("获取数据失败", c)
 	} else {
@@ -49,7 +56,8 @@ func SelectAllGlutenInfoById(c *gin.Context) {
 }
 
 func CountGlutenInfo(c *gin.Context) {
-	if count, err := service.CountGlutenInfo(util.GetJwtId(c)); err != nil {
+	category := c.Query("category")
+	if count, err := service.CountGlutenInfo(util.GetJwtId(c), category); err != nil {
 		util.Logger.Error(err)
 		util.FailWithMessage("获取数据失败", c)
 	} else {

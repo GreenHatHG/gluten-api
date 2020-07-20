@@ -47,10 +47,19 @@ func SelectAllGlutenInfoById(userId string, currentPage int64, pageSize int64, s
 	return nil, lists
 }
 
-func CountGlutenInfo(userId string) (int64, error) {
-	count, err := glutenInfoCollection.CountDocuments(context.TODO(), bson.D{
-		{"user_id", userId},
-	})
+func CountGlutenInfo(userId string, category string) (int64, error) {
+	var bsonD primitive.D
+	if category != "" {
+		bsonD = bson.D{
+			{"user_id", userId},
+			{"category", category},
+		}
+	} else {
+		bsonD = bson.D{
+			{"user_id", userId},
+		}
+	}
+	count, err := glutenInfoCollection.CountDocuments(context.TODO(), bsonD)
 	return count, err
 }
 
