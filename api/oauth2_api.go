@@ -38,6 +38,7 @@ func GithubOauth2(c *gin.Context) {
 	if err != nil {
 		util.Logger.Error(err)
 		util.FailWithMessage("获取用户信息失败", c)
+		return
 	}
 	data := gjson.Parse(string(content)).Map()
 
